@@ -100,21 +100,21 @@ const removeLink = async (l: any) => {
 };
 
 const saveProfile = async () => {
-  if (isSaving.value) return
-  isSaving.value = true
+  if (isSaving.value) return;
+  isSaving.value = true;
   try {
     const res = await $api("/profile", {
       method: "PUT",
       body: JSON.stringify(profile.value),
-    })
-    profile.value = res
-    $toast?.success?.("Profil berhasil disimpan", { timeout: 1500 })
+    });
+    profile.value = res;
+    $toast?.success?.("Profil berhasil disimpan", { timeout: 1500 });
   } catch (e: any) {
-    $toast?.error?.(e?.message || "Gagal menyimpan profil")
+    $toast?.error?.(e?.message || "Gagal menyimpan profil");
   } finally {
-    isSaving.value = false
+    isSaving.value = false;
   }
-}
+};
 const currentOrder = computed(() => links.value.map((l) => l.id));
 const isDirty = computed(() => {
   const a = initialOrder.value;
@@ -616,12 +616,8 @@ const removeAvatar = async () => {
                         class="sr-only peer"
                       />
                       <div
-                        class="w-11 h-6 bg-slate-700 rounded-full peer-focus:outline-none peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-blue-500 relative"
-                      >
-                        <span
-                          class="absolute top-[2px] left-[2px] h-5 w-5 rounded-full bg-white transition-transform peer-checked:translate-x-5"
-                        />
-                      </div>
+                        class="relative w-11 h-6 rounded-full bg-slate-700 peer-focus:outline-none peer-checked:bg-gradient-to-r peer-checked:from-cyan-500 peer-checked:to-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-5"
+                      ></div>
                       <span class="ml-3 text-sm font-medium text-slate-400">
                         {{ l.is_active ? "Active" : "Inactive" }}
                       </span>
@@ -695,7 +691,7 @@ const removeAvatar = async () => {
                       </button>
                     </div>
 
-                    <!-- Toggle -->
+                    <!-- Toggle Mobile -->
                     <label
                       class="relative inline-flex items-center cursor-pointer"
                     >
@@ -1092,7 +1088,7 @@ const removeAvatar = async () => {
                 :disabled="isSaving"
                 class="w-full px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg sm:rounded-xl font-medium transition-all shadow-lg hover:shadow-cyan-500/50 text-sm sm:text-base"
               >
-                 {{ isSaving ? 'Saving…' : 'Save Profile' }}
+                {{ isSaving ? "Saving…" : "Save Profile" }}
               </button>
             </div>
           </div>
