@@ -1,19 +1,17 @@
-<script setup lang="ts">
-const ready = ref(false)
-onMounted(() => { ready.value = true })
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <NuxtLoadingIndicator />
   <NuxtLayout>
-    <!-- Jika ada header yang tergantung auth.user -->
+    <!-- Header yang butuh client-side boleh tetap ClientOnly -->
     <ClientOnly>
       <slot name="header" />
     </ClientOnly>
 
-    <NuxtPage v-if="ready" />
-    <!-- atau <ClientOnly><NuxtPage /></ClientOnly> kalau mau full client -->
+    <!-- JANGAN ditunda -->
+    <NuxtPage />
 
+    <!-- Toast memang client-only -->
     <ClientOnly>
       <UiToast />
     </ClientOnly>

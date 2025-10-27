@@ -1,23 +1,22 @@
 // middleware/auth.global.ts
 import { useAuth, navigateTo } from '#imports'
 
-export default defineNuxtRouteMiddleware(async (to) => {
+export default defineNuxtRouteMiddleware((to) => {
   if (process.server) return
 
   const auth = useAuth()
   const { $setToken } = useNuxtApp() as any
   const hasToken = !!localStorage.getItem('token')
 
+  // Jangan await — biarkan jalan di background
   if (hasToken && !auth.user) {
-    try {
-      await auth.fetchMe()
-    } catch {
-      $setToken(null) // sinkron: state & localStorage
-    }
+    auth.fetchMe().catch(() => $setToken(null))
   }
 
   const privatePages = ['/dashboard']
-  if (privatePages.includes(to.path) && !auth.user) {
+
+  // Hanya cegat kalau masuk private page dan TIDAK punya token
+  if (privatePages.includes(to.path) && !hasToken) {
     return navigateTo('/login')
   }
 })
