@@ -300,6 +300,40 @@ const removeAvatar = async () => {
     deletingAvatar.value = false;
   }
 };
+
+// di atas / dekat variabel lain
+const config = useRuntimeConfig()
+const siteBase = process.client
+  ? window.location.origin
+  : (config.public?.siteBase || "") // optional: set di .env NUXT_PUBLIC_SITE_BASE
+
+// url publik user: https://domainmu/@username
+const publicUrl = computed(() =>
+  profile.value?.username ? `${siteBase}/@${profile.value.username}` : `${siteBase}/@`
+)
+
+const canShare = ref(false)
+onMounted(() => { canShare.value = !!navigator?.share })
+
+const copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(publicUrl.value)
+    $toast?.success?.('Link disalin')
+  } catch {
+    $toast?.error?.('Gagal menyalin link')
+  }
+}
+
+const shareLink = async () => {
+  try {
+    if (navigator?.share) {
+      await navigator.share({ title: 'My LinkHub', url: publicUrl.value })
+    } else {
+      await copyLink()
+    }
+  } catch {}
+}
+
 </script>
 
 <template>
@@ -402,9 +436,8 @@ const removeAvatar = async () => {
 
       <div v-else class="space-y-4 sm:space-y-6">
         <!-- Tab Navigation -->
-        <div
-          class="flex gap-1 sm:gap-2 p-1 rounded-xl bg-slate-800/30 border border-slate-700/50 backdrop-blur-xl w-full sm:w-fit"
-        >
+       <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <div class="flex gap-1 sm:gap-2 p-1 rounded-xl bg-slate-800/30 border border-slate-700/50 backdrop-blur-xl w-full sm:w-fit">
           <button
             @click="activeTab = 'links'"
             :class="[
@@ -458,6 +491,51 @@ const removeAvatar = async () => {
             </div>
           </button>
         </div>
+        <div class="w-full sm:w-auto">
+    <div
+      class="flex items-center justify-between gap-2 rounded-full bg-slate-800/50 border border-slate-700/60 px-4 py-2"
+    >
+      <a
+        :href="publicUrl"
+        target="_blank"
+        class="truncate text-slate-200 hover:underline"
+      >
+        {{ publicUrl.replace(/^https?:\/\//,'') }}
+      </a>
+
+      <div class="flex items-center gap-1">
+        <!-- copy -->
+        <button
+          @click="copyLink"
+          class="p-2 rounded-full hover:bg-slate-700/60 text-slate-200"
+          title="Salin link"
+          aria-label="Salin link"
+        >
+          <!-- icon copy -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2v-6M8 16l-2 2m2-2l2 2" />
+          </svg>
+        </button>
+
+        <!-- share (kalau device support Web Share API) -->
+        <button
+          v-if="canShare"
+          @click="shareLink"
+          class="p-2 rounded-full hover:bg-slate-700/60 text-slate-200"
+          title="Bagikan"
+          aria-label="Bagikan"
+        >
+          <!-- icon share -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4m0 0L8 6m4-4v16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
         <!-- Links Section -->
         <div v-show="activeTab === 'links'" class="space-y-4 sm:space-y-6">
