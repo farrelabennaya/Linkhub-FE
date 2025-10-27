@@ -46,6 +46,10 @@ const imgSrcWithTick = computed(() => {
   }
 });
 
+const displayName = computed(
+  () => auth.user?.profile?.display_name || auth.user?.name || ""
+);
+
 // OPTIONAL: setiap sumber berubah, paksa refresh
 watch([() => profile.value?.avatar_url, avatarPreview], () => {
   imgTick.value++;
@@ -107,7 +111,24 @@ const saveProfile = async () => {
       method: "PUT",
       body: JSON.stringify(profile.value),
     });
+
+    // update section profil di halaman
     profile.value = res;
+
+    // sinkronkan ke store auth -> header langsung ikut update
+    if (auth.user) {
+      auth.user = {
+        ...auth.user,
+        profile: {
+          ...(auth.user.profile || {}),
+          ...res, // display_name, bio, avatar_url, theme, dll
+        },
+        // opsional: kalau kamu ingin name di users ikut nama tampilan
+        // comment baris ini kalau nggak mau sinkron
+        name: res.display_name ?? auth.user.name,
+      };
+    }
+
     $toast?.success?.("Profil berhasil disimpan", { timeout: 1500 });
   } catch (e: any) {
     $toast?.error?.(e?.message || "Gagal menyimpan profil");
@@ -115,6 +136,7 @@ const saveProfile = async () => {
     isSaving.value = false;
   }
 };
+
 const currentOrder = computed(() => links.value.map((l) => l.id));
 const isDirty = computed(() => {
   const a = initialOrder.value;
@@ -311,7 +333,7 @@ const removeAvatar = async () => {
             </div>
 
             <span class="text-base sm:text-xl font-bold text-white">
-              {{ auth.user.name }}
+              {{ displayName }}
             </span>
           </div>
 
@@ -781,7 +803,7 @@ const removeAvatar = async () => {
               </div>
 
               <!-- Bio -->
-              <div>
+              <!-- <div>
                 <label
                   class="block text-slate-300 text-xs sm:text-sm font-medium mb-1.5 sm:mb-2"
                   >Bio</label
@@ -792,7 +814,7 @@ const removeAvatar = async () => {
                   rows="4"
                   class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-slate-800/50 border border-slate-700/50 rounded-lg sm:rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none text-sm sm:text-base"
                 ></textarea>
-              </div>
+              </div> -->
 
               <!-- Avatar URL -->
               <div>
