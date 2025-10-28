@@ -815,7 +815,7 @@ const shareLink = async () => {
                   <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
                     <!-- Drag Handle -->
                     <div
-                      class="hidden sm:flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700/50 text-slate-400 group-hover:text-slate-300 flex-shrink-0"
+                      class="sm:flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700/50 text-slate-400 group-hover:text-slate-300 flex-shrink-0"
                     >
                       <svg
                         class="w-3.5 h-3.5 sm:w-4 sm:h-4"
@@ -833,11 +833,11 @@ const shareLink = async () => {
                     </div>
 
                     <!-- Nomor -->
-                    <div
+                    <!-- <div
                       class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-white text-xs sm:text-sm font-bold flex-shrink-0"
                     >
                       {{ i + 1 }}
-                    </div>
+                    </div> -->
 
                     <!-- Info link -->
                     <div class="flex-1 min-w-0">
