@@ -5,22 +5,38 @@ const email = ref("");
 const password = ref("");
 const err = ref("");
 const auth = useAuth();
+const loggingIn = ref(false);
 const onLogin = async () => {
-  try {
-  await auth.login(email.value, password.value)
-  navigateTo('/dashboard')
-} catch (e: any) {
-  if (e.status === 422 && e.errors) {
-    // ambil pesan pertama dari validasi
-    const first = Object.values(e.errors).flat()?.[0]
-    err.value = first || 'Data tidak valid.'
-  } else if (e.status === 401) {
-    err.value = 'Email atau password salah.'
-  } else {
-    err.value = 'Terjadi kesalahan. Coba lagi ya.'
+  // validasi ringan di FE dulu
+  if (!email.value || !password.value) {
+    err.value = "Email dan password wajib diisi.";
+    return;
   }
-}
 
+  if (loggingIn.value) return;
+  loggingIn.value = true;
+  err.value = "";
+
+  try {
+    await auth.login(email.value, password.value);
+    await navigateTo("/dashboard");
+  } catch (e: any) {
+    const status = e?.status ?? e?.response?.status;
+    const errors = e?.errors ?? e?.response?.data?.errors;
+
+    if (status === 422 && errors) {
+      const first = Object.values(errors).flat()?.[0];
+      err.value = first || "Data tidak valid.";
+    } else if (status === 401) {
+      err.value = "Email atau password salah.";
+    } else if (e?.message?.includes("Failed to fetch")) {
+      err.value = "Tidak bisa terhubung ke server. Coba lagi.";
+    } else {
+      err.value = e?.message || "Terjadi kesalahan. Coba lagi ya.";
+    }
+  } finally {
+    loggingIn.value = false;
+  }
 };
 </script>
 
@@ -72,28 +88,45 @@ const onLogin = async () => {
 
         <!-- Email Input -->
         <div class="mb-4">
-          <label class="block text-slate-300 text-sm mb-2">Email</label>
           <div class="relative">
+            <label class="block text-slate-300 text-sm mb-2">Email</label>
             <input
               v-model="email"
               type="email"
               placeholder="merveavsar@mail.com"
-              class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all mb-3"
+              class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all mb-3 disabled:opacity-60"
+              :disabled="loggingIn"
               @keyup.enter="onLogin"
             />
-             <label class="block text-slate-300 text-sm mb-2">Password</label>
+
+            <label class="block text-slate-300 text-sm mb-2">Password</label>
             <input
               v-model="password"
               type="password"
               placeholder="Min. 8 character"
-              class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+              class="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20 transition-all disabled:opacity-60"
+              :disabled="loggingIn"
+              @keyup.enter="onLogin"
             />
+
             <button
               @click="onLogin"
-              class="w-full h-10 mt-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
+              :disabled="loggingIn"
+              :aria-busy="loggingIn"
+              class="w-full h-10 mt-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center hover:shadow-lg hover:shadow-cyan-500/50 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
+              <svg
+                v-if="loggingIn"
+                class="w-4 h-4 mr-2 animate-spin text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 3a9 9 0 1 0 9 9" stroke-linecap="round" />
+              </svg>
               <span class="text-white">
-                Login
+                {{ loggingIn ? "Logging in…" : "Login" }}
               </span>
             </button>
           </div>
