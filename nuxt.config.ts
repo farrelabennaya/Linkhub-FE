@@ -17,7 +17,7 @@ export default defineNuxtConfig({
   },
    app: {
     head: {
-      title: 'LinkHub',
+      title: 'HulaHub',
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon.png' },
