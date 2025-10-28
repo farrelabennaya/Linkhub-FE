@@ -45,6 +45,41 @@ const imgSrcWithTick = computed(() => {
     return base;
   }
 });
+const startEdit = (l: any, field: "title" | "url") => {
+  l._edit = l._edit || {};
+  l._edit[field] = { value: l[field], busy: false };
+};
+
+const cancelEdit = (l: any, field: "title" | "url") => {
+  if (!l._edit?.[field]) return;
+  l._edit[field] = null;
+};
+
+const saveEdit = async (l: any, field: "title" | "url") => {
+  const ed = l._edit?.[field];
+  if (!ed) return;
+  if (ed.value === l[field]) {
+    l._edit[field] = null;
+    return;
+  }
+
+  ed.busy = true;
+  const off = $toast?.info?.("Menyimpan…", { timeout: 1200 }); // optional
+  try {
+    const payload: any = { [field]: ed.value };
+    const updated = await $api(`/links/${l.id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    Object.assign(l, updated);
+    l._edit[field] = null;
+    $toast?.success?.(`${field === "title" ? "Judul" : "URL"} diperbarui`);
+  } catch (e: any) {
+    $toast?.error?.(e?.message || "Gagal menyimpan perubahan");
+  } finally {
+    ed.busy = false;
+  }
+};
 
 const displayName = computed(
   () => auth.user?.profile?.display_name || auth.user?.name || ""
@@ -331,7 +366,7 @@ const copyLink = async () => {
 const shareLink = async () => {
   try {
     if (navigator?.share) {
-      await navigator.share({ title: "My LinkHub", url: publicUrl.value });
+      await navigator.share({ title: "My HulaHub", url: publicUrl.value });
     } else {
       await copyLink();
     }
@@ -815,7 +850,7 @@ const shareLink = async () => {
                   <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
                     <!-- Drag Handle -->
                     <div
-                      class="sm:flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-700/50 text-slate-400 group-hover:text-slate-300 flex-shrink-0"
+                      class="grid place-items-center w-7 aspect-square sm:w-8 rounded-lg bg-slate-700/50 text-slate-400 group-hover:text-slate-300 flex-shrink-0 rotate-0 skew-x-0 skew-y-0"
                     >
                       <svg
                         class="w-3.5 h-3.5 sm:w-4 sm:h-4"
@@ -840,19 +875,230 @@ const shareLink = async () => {
                     </div> -->
 
                     <!-- Info link -->
-                    <div class="flex-1 min-w-0">
-                      <div
-                        class="font-semibold text-white text-sm sm:text-base mb-0.5 sm:mb-1 truncate"
-                      >
-                        {{ l.title }}
+                    <div class="flex-1 min-w-0 space-y-0.5">
+                      <!-- TITLE -->
+                      <div class="flex items-start gap-2">
+                        <div class="flex-1 min-w-0">
+                          <!-- view mode -->
+                          <div
+                            v-if="!l._edit?.title"
+                            class="font-semibold text-white text-sm sm:text-base truncate"
+                            :title="l.title"
+                          >
+                            {{ l.title }}
+                          </div>
+                          <!-- edit mode -->
+                          <div v-else class="flex items-center gap-2">
+                            <input
+                              v-model="l._edit.title.value"
+                              :disabled="l._edit.title.busy"
+                              class="w-full px-2 py-1 rounded-md bg-slate-800/60 border border-slate-600/60 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+                              placeholder="Edit title"
+                            />
+                            <button
+                              @click="saveEdit(l, 'title')"
+                              :disabled="l._edit.title.busy"
+                              :aria-busy="l._edit.title.busy"
+                              class="p-1.5 rounded-md bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                              title="Simpan"
+                            >
+                              <!-- spinner saat busy -->
+                              <svg
+                                v-if="l._edit.title.busy"
+                                class="w-4 h-4 animate-spin"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  class="opacity-25"
+                                  stroke="currentColor"
+                                  stroke-width="4"
+                                  fill="none"
+                                />
+                                <path
+                                  d="M4 12a8 8 0 018-8"
+                                  class="opacity-90"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                              <!-- icon check saat normal -->
+                              <svg
+                                v-else
+                                class="w-4 h-4"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </button>
+
+                            <button
+                              @click="cancelEdit(l, 'title')"
+                              :disabled="l._edit.title.busy"
+                              class="p-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                              title="Batal"
+                            >
+                              <svg
+                                class="w-4 h-4"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- edit icon (title) -->
+                        <button
+                          v-if="!l._edit?.title"
+                          @click="startEdit(l, 'title')"
+                          :disabled="l._edit?.url?.busy"
+                          class="flex-shrink-0 p-1.5 rounded-md bg-slate-700/40 hover:bg-slate-700/60 text-slate-300"
+                          title="Edit title"
+                        >
+                          <!-- pencil -->
+                          <svg
+                            class="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M11 5h2m-8 14h14M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z"
+                            />
+                          </svg>
+                        </button>
                       </div>
-                      <a
-                        :href="l.url"
-                        target="_blank"
-                        class="text-xs sm:text-sm text-cyan-400 hover:text-cyan-300 truncate block"
-                      >
-                        {{ l.url }}
-                      </a>
+
+                      <!-- URL -->
+                      <div class="flex items-start gap-2">
+                        <div class="flex-1 min-w-0">
+                          <!-- view mode -->
+                          <a
+                            v-if="!l._edit?.url"
+                            :href="l.url"
+                            target="_blank"
+                            class="text-xs sm:text-sm text-cyan-400 hover:text-cyan-300 truncate block"
+                            :title="l.url"
+                          >
+                            {{ l.url }}
+                          </a>
+                          <!-- edit mode -->
+                          <div v-else class="flex items-center gap-2">
+                            <input
+                              v-model="l._edit.url.value"
+                              :disabled="l._edit.url.busy"
+                              type="url"
+                              class="w-full px-2 py-1 rounded-md bg-slate-800/60 border border-slate-600/60 text-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/30 disabled:opacity-60"
+                            />
+
+                            <button
+                              @click="saveEdit(l, 'url')"
+                              :disabled="l._edit.url.busy"
+                              :aria-busy="l._edit.url.busy"
+                              class="p-1.5 rounded-md bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                              title="Simpan"
+                            >
+                              <svg
+                                v-if="l._edit.url.busy"
+                                class="w-4 h-4 animate-spin"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  class="opacity-25"
+                                  stroke="currentColor"
+                                  stroke-width="4"
+                                  fill="none"
+                                />
+                                <path
+                                  d="M4 12a8 8 0 018-8"
+                                  class="opacity-90"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                              <svg
+                                v-else
+                                class="w-4 h-4"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </button>
+
+                            <button
+                              @click="cancelEdit(l, 'url')"
+                              :disabled="l._edit.url.busy"
+                              class="p-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none"
+                              title="Batal"
+                            >
+                              <svg
+                                class="w-4 h-4"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- edit icon (url) -->
+                        <button
+                          v-if="!l._edit?.url"
+                          @click="startEdit(l, 'url')"
+                          :disabled="l._edit?.title?.busy"
+                          class="flex-shrink-0 p-1.5 rounded-md bg-slate-700/40 hover:bg-slate-700/60 text-slate-300"
+                          title="Edit URL"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M11 5h2m-8 14h14M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
