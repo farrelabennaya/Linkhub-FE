@@ -439,124 +439,254 @@ const shareLink = async () => {
 
       <div v-else class="space-y-4 sm:space-y-6">
         <!-- Tab Navigation -->
-        <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+        <div class="space-y-4">
+          <!-- Header Section -->
           <div
-            class="flex gap-1 sm:gap-2 p-1 rounded-xl bg-slate-800/30 border border-slate-700/50 backdrop-blur-xl w-full sm:w-fit"
+            class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between"
           >
-            <button
-              @click="activeTab = 'links'"
-              :class="[
-                'flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all',
-                activeTab === 'links'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white',
-              ]"
-            >
-              <div class="flex items-center justify-center gap-1.5 sm:gap-2">
-                <svg
-                  class="w-3.5 h-3.5 sm:w-4 sm:h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
-                Links
-              </div>
-            </button>
-            <button
-              @click="activeTab = 'profile'"
-              :class="[
-                'flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all',
-                activeTab === 'profile'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg'
-                  : 'text-slate-400 hover:text-white',
-              ]"
-            >
-              <div class="flex items-center justify-center gap-1.5 sm:gap-2">
-                <svg
-                  class="w-3.5 h-3.5 sm:w-4 sm:h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                Profile
-              </div>
-            </button>
-          </div>
-          <div class="w-full sm:w-auto sm:ml-auto">
-            <div
-              class="flex items-center justify-between gap-2 rounded-full bg-slate-800/50 border border-slate-700/60 px-4 py-2"
-            >
-              <a
-                :href="publicUrl"
-                target="_blank"
-                class="truncate text-slate-200 hover:underline"
-              >
-                {{ publicUrl.replace(/^https?:\/\//, "") }}
-              </a>
+            <!-- Tab Navigation -->
+            <div class="w-full lg:w-auto">
+              <div class="relative inline-flex w-full lg:w-auto">
+                <!-- Glow effect -->
+                <div
+                  class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur opacity-75"
+                ></div>
 
-              <div class="flex items-center gap-1">
-                <!-- copy -->
-                <button
-                  @click="copyLink"
-                  class="p-2 rounded-full hover:bg-slate-700/60 text-slate-200"
-                  title="Salin link"
-                  aria-label="Salin link"
+                <!-- Tabs container -->
+                <div
+                  class="relative flex gap-2 p-1.5 rounded-2xl bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 shadow-lg w-full lg:w-auto"
                 >
-                  <!-- icon copy -->
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  <button
+                    @click="activeTab = 'links'"
+                    :class="[
+                      'relative flex-1 lg:flex-none px-6 lg:px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300',
+                      activeTab === 'links'
+                        ? 'text-white'
+                        : 'text-slate-400 hover:text-slate-200',
+                    ]"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2v-6M8 16l-2 2m2-2l2 2"
-                    />
-                  </svg>
-                </button>
+                    <!-- Active background -->
+                    <div
+                      v-if="activeTab === 'links'"
+                      class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl shadow-lg shadow-cyan-500/50 transition-all duration-300"
+                    ></div>
 
-                <!-- share (kalau device support Web Share API) -->
-                <button
-                  v-if="canShare"
-                  @click="shareLink"
-                  class="p-2 rounded-full hover:bg-slate-700/60 text-slate-200"
-                  title="Bagikan"
-                  aria-label="Bagikan"
-                >
-                  <!-- icon share -->
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    <!-- Content -->
+                    <div
+                      class="relative flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4 transition-transform duration-300"
+                        :class="activeTab === 'links' ? 'scale-110' : ''"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                        />
+                      </svg>
+                      <span>Links</span>
+                    </div>
+                  </button>
+
+                  <button
+                    @click="activeTab = 'profile'"
+                    :class="[
+                      'relative flex-1 lg:flex-none px-6 lg:px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300',
+                      activeTab === 'profile'
+                        ? 'text-white'
+                        : 'text-slate-400 hover:text-slate-200',
+                    ]"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 12v7a1 1 0 001 1h14a1 1 0 001-1v-7M16 6l-4-4m0 0L8 6m4-4v16"
-                    />
-                  </svg>
-                </button>
+                    <!-- Active background -->
+                    <div
+                      v-if="activeTab === 'profile'"
+                      class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl shadow-lg shadow-cyan-500/50 transition-all duration-300"
+                    ></div>
+
+                    <!-- Content -->
+                    <div
+                      class="relative flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        class="w-4 h-4 transition-transform duration-300"
+                        :class="activeTab === 'profile' ? 'scale-110' : ''"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2.5"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                      <span>Profile</span>
+                    </div>
+                  </button>
+                </div>
               </div>
             </div>
+
+            <!-- Public Link Section -->
+            <div class="w-full lg:w-auto lg:max-w-md">
+              <div class="relative group">
+                <!-- Animated gradient border -->
+                <div
+                  class="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500 group-hover:duration-200"
+                ></div>
+
+                <!-- Main container -->
+                <div
+                  class="relative flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl bg-slate-800/80 backdrop-blur-xl border border-slate-700/50 shadow-xl"
+                >
+                  <!-- Globe icon with pulse -->
+                  <div class="relative flex-shrink-0">
+                    <div
+                      class="absolute inset-0 bg-cyan-400/20 rounded-lg"
+                    ></div>
+                    <div
+                      class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br from-cyan-500/30 to-blue-500/30 border border-cyan-500/40 flex items-center justify-center"
+                    >
+                      <svg
+                        class="w-4 h-4 text-cyan-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Link with hover effect -->
+                  <a
+                    :href="publicUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex-1 min-w-0 group/link"
+                  >
+                    <div class="flex items-center gap-1.5">
+                      <span
+                        class="text-xs sm:text-sm font-semibold text-slate-300 group-hover/link:text-cyan-400 truncate transition-colors duration-200"
+                      >
+                        {{ publicUrl.replace(/^https?:\/\//, "") }}
+                      </span>
+                      <svg
+                        class="w-3 h-3 text-slate-500 group-hover/link:text-cyan-400 opacity-0 group-hover/link:opacity-100 transition-all duration-200 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                    </div>
+                  </a>
+
+                  <!-- Action buttons -->
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <!-- Copy button -->
+                    <button
+                      @click="copyLink"
+                      class="group/btn relative p-2 rounded-lg bg-slate-700/50 hover:bg-cyan-500/20 border border-transparent hover:border-cyan-500/50 text-slate-400 hover:text-cyan-400 transition-all duration-300 active:scale-90"
+                      title="Copy link"
+                      aria-label="Copy link"
+                    >
+                      <!-- Tooltip -->
+                      <span
+                        class="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-lg opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg"
+                      >
+                        Copy Link
+                      </span>
+
+                      <svg
+                        class="w-4 h-4 transition-transform duration-300 group-hover/btn:scale-110"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                        />
+                      </svg>
+                    </button>
+
+                    <!-- Share button -->
+                    <button
+                      v-if="canShare"
+                      @click="shareLink"
+                      class="group/btn relative p-2 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-blue-500/30 hover:border-blue-400/50 text-blue-400 hover:text-blue-300 transition-all duration-300 active:scale-90"
+                      title="Share"
+                      aria-label="Share"
+                    >
+                      <!-- Tooltip -->
+                      <span
+                        class="absolute -top-9 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-lg opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none shadow-lg"
+                      >
+                        Share Link
+                      </span>
+
+                      <svg
+                        class="w-4 h-4 transition-all duration-300 group-hover/btn:scale-110 group-hover/btn:rotate-12"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional: Breadcrumb or info -->
+          <div
+            class="flex items-center justify-between text-xs text-slate-500 px-1"
+          >
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Manage your links and profile settings</span>
+            </div>
+            <span class="text-cyan-400 font-medium">{{
+              activeTab === "links" ? "Links Manager" : "Profile Editor"
+            }}</span>
           </div>
         </div>
 
